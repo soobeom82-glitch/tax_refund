@@ -1,0 +1,106 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f1e8;
+  --panel: #fffdf7;
+  --ink: #1f2a1f;
+  --line: #9aaf54;
+  --accent: #5d7c1f;
+  --muted: #5d6657;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background:
+    radial-gradient(circle at top left, #fff4bf 0, transparent 28%),
+    linear-gradient(180deg, #f9f6ea 0%, var(--bg) 100%);
+  color: var(--ink);
+  font-family: "Apple SD Gothic Neo", "Pretendard", sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+main {
+  min-height: 100vh;
+  padding: 48px 20px 80px;
+}
+
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.hero,
+.panel {
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(81, 92, 38, 0.08);
+}
+
+.hero {
+  padding: 32px;
+}
+
+.hero h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  color: var(--accent);
+}
+
+.hero p,
+.panel p,
+.panel li {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.panel {
+  padding: 24px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #eef6cf;
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.code {
+  display: block;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #eff3e3;
+  border: 1px solid #d7e1b3;
+  color: #39452a;
+  overflow-x: auto;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.92rem;
+}
+
+.list {
+  margin: 0;
+  padding-left: 18px;
+}
