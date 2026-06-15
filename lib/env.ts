@@ -6,7 +6,7 @@ const envSchema = z.object({
   TELEGRAM_WEBHOOK_SECRET: z.string().min(1),
   TELEGRAM_ALLOWED_CHAT_IDS: z.string().default(""),
   BLOB_READ_WRITE_TOKEN: z.string().min(1),
-  APP_BASE_URL: z.string().url(),
+  APP_BASE_URL: z.string().url().optional(),
 });
 
 type AppEnv = {
@@ -15,7 +15,6 @@ type AppEnv = {
   telegramWebhookSecret: string;
   telegramAllowedChatIds: Set<string>;
   blobReadWriteToken: string;
-  appBaseUrl: string;
 };
 
 let cachedEnv: AppEnv | null = null;
@@ -28,8 +27,10 @@ export function getEnv(): AppEnv {
   const parsed = envSchema.safeParse(process.env);
 
   if (!parsed.success) {
-    console.error("Invalid environment variables", parsed.error.flatten().fieldErrors);
-    throw new Error("Invalid environment variables");
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    const invalidKeys = Object.keys(fieldErrors);
+    console.error("Invalid environment variables", fieldErrors);
+    throw new Error(`Invalid environment variables: ${invalidKeys.join(", ")}`);
   }
 
   const allowedIds = parsed.data.TELEGRAM_ALLOWED_CHAT_IDS.split(",")
@@ -42,7 +43,6 @@ export function getEnv(): AppEnv {
     telegramWebhookSecret: parsed.data.TELEGRAM_WEBHOOK_SECRET,
     telegramAllowedChatIds: new Set(allowedIds),
     blobReadWriteToken: parsed.data.BLOB_READ_WRITE_TOKEN,
-    appBaseUrl: parsed.data.APP_BASE_URL,
   };
 
   return cachedEnv;
