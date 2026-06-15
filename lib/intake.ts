@@ -1,4 +1,4 @@
-import { sql } from "@/lib/db";
+import { getSql } from "@/lib/db";
 
 type SourceFileInsertInput = {
   sourceKind: string;
@@ -22,6 +22,7 @@ type SourceFileRow = {
 };
 
 export async function findSourceFileBySha256(sha256: string): Promise<SourceFileRow | null> {
+  const sql = getSql();
   const existing = await sql<SourceFileRow[]>`
     select id, status
     from source_files
@@ -33,6 +34,7 @@ export async function findSourceFileBySha256(sha256: string): Promise<SourceFile
 }
 
 export async function insertSourceFileRecord(input: SourceFileInsertInput): Promise<SourceFileRow> {
+  const sql = getSql();
   const existing = await findSourceFileBySha256(input.sha256);
   if (existing) {
     return existing;

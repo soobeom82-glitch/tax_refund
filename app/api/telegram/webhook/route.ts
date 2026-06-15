@@ -1,7 +1,7 @@
 import { put } from "@vercel/blob";
 import { createHash } from "node:crypto";
 
-import { env } from "@/lib/env";
+import { getEnv } from "@/lib/env";
 import { findSourceFileBySha256, insertSourceFileRecord } from "@/lib/intake";
 import {
   extractMessageFileCandidate,
@@ -15,6 +15,8 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  const env = getEnv();
+
   if (!isAllowedTelegramRequest(request, env.telegramWebhookSecret)) {
     return Response.json({ ok: false, error: "invalid_telegram_secret" }, { status: 401 });
   }

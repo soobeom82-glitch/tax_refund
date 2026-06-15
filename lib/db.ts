@@ -1,9 +1,19 @@
 import postgres from "postgres";
 
-import { env } from "@/lib/env";
+import { getEnv } from "@/lib/env";
 
-export const sql = postgres(env.databaseUrl, {
-  max: 1,
-  prepare: false,
-  ssl: "require",
-});
+let sqlInstance: postgres.Sql | null = null;
+
+export function getSql() {
+  if (sqlInstance) {
+    return sqlInstance;
+  }
+
+  const env = getEnv();
+  sqlInstance = postgres(env.databaseUrl, {
+    max: 1,
+    prepare: false,
+    ssl: "require",
+  });
+  return sqlInstance;
+}
