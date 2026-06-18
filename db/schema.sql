@@ -51,7 +51,7 @@ create table if not exists bank_transactions (
   institution text,
   account_number text,
   amount numeric(14, 0) not null,
-  balance_after numeric(14, 0) not null,
+  balance_after numeric(14, 0),
   memo text,
   duplicate_key text not null unique,
   created_at timestamptz not null default now(),

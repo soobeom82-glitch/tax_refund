@@ -65,3 +65,33 @@ Current webhook behavior:
 - Confirm action to create `vat_evidence` rows
 - Confirm action to create `bank_transactions` rows
 - Half-year export and reporting pages
+
+## Import existing HACCP history
+
+This repo also includes a one-time importer for the local HACCP archive and ledgers.
+
+Run a dry-run first:
+
+```bash
+DATABASE_URL="..." \
+BLOB_READ_WRITE_TOKEN="..." \
+npm run import:haccp-history -- --dry-run
+```
+
+Run the actual import:
+
+```bash
+DATABASE_URL="..." \
+BLOB_READ_WRITE_TOKEN="..." \
+npm run import:haccp-history
+```
+
+Modes:
+
+- `--mode all`
+- `--mode vat`
+- `--mode bank`
+
+If the database was created before `2026-06-18`, also run:
+
+- [db/2026-06-18_history_import_migration.sql](/Users/KAKAO/Documents/tax_refund/db/2026-06-18_history_import_migration.sql)

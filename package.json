@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "import:haccp-history": "node scripts/import_haccp_history.mjs"
   },
   "dependencies": {
     "@vercel/blob": "^2.4.0",
