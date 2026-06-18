@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       access: "private",
       addRandomSuffix: false,
       contentType: candidate.mimeType,
-    } as never,
+    },
   );
 
   const sourceRecord = await insertSourceFileRecord({
