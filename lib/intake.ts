@@ -21,6 +21,26 @@ type SourceFileRow = {
   status: SourceFileInsertInput["status"];
 };
 
+type SourceFileSummary = {
+  id: string;
+  original_filename: string | null;
+  status: string;
+  created_at: string;
+};
+
+type VatEvidenceSummary = {
+  issue_date: string | null;
+  vendor: string | null;
+  item: string | null;
+  total_amount: string | null;
+};
+
+type BankTransactionSummary = {
+  transaction_datetime: string;
+  description: string;
+  amount: string;
+};
+
 export async function findSourceFileBySha256(sha256: string): Promise<SourceFileRow | null> {
   const sql = getSql();
   const existing = await sql<SourceFileRow[]>`
@@ -74,4 +94,62 @@ export async function insertSourceFileRecord(input: SourceFileInsertInput): Prom
   `;
 
   return inserted[0];
+}
+
+export async function getTelegramStatusSummary() {
+  const sql = getSql();
+  const source = await sql<{ count: number }[]>`
+    select count(*)::int as count
+    from source_files
+  `;
+  const pending = await sql<{ count: number }[]>`
+    select count(*)::int as count
+    from source_files
+    where status = 'pending_review'
+  `;
+  const vat = await sql<{ count: number }[]>`
+    select count(*)::int as count
+    from vat_evidence
+  `;
+  const bank = await sql<{ count: number }[]>`
+    select count(*)::int as count
+    from bank_transactions
+  `;
+
+  return {
+    sourceFiles: source[0]?.count ?? 0,
+    pendingSourceFiles: pending[0]?.count ?? 0,
+    vatEvidence: vat[0]?.count ?? 0,
+    bankTransactions: bank[0]?.count ?? 0,
+  };
+}
+
+export async function listRecentSourceFiles(limit = 5) {
+  const sql = getSql();
+  return sql<SourceFileSummary[]>`
+    select id, original_filename, status, created_at::text
+    from source_files
+    order by created_at desc
+    limit ${limit}
+  `;
+}
+
+export async function listRecentVatEvidence(limit = 5) {
+  const sql = getSql();
+  return sql<VatEvidenceSummary[]>`
+    select issue_date::text, vendor, item, total_amount::text
+    from vat_evidence
+    order by created_at desc
+    limit ${limit}
+  `;
+}
+
+export async function listRecentBankTransactions(limit = 5) {
+  const sql = getSql();
+  return sql<BankTransactionSummary[]>`
+    select transaction_datetime::text, description, amount::text
+    from bank_transactions
+    order by created_at desc
+    limit ${limit}
+  `;
 }

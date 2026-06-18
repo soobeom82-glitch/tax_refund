@@ -19,9 +19,12 @@ const telegramPhotoSchema = z.object({
 const telegramMessageSchema = z.object({
   message_id: z.number(),
   date: z.number(),
+  text: z.string().optional(),
   caption: z.string().optional(),
   chat: z.object({
     id: z.union([z.number(), z.string()]),
+    type: z.string().optional(),
+    title: z.string().optional(),
   }),
   document: telegramFileSchema.optional(),
   photo: z.array(telegramPhotoSchema).optional(),
@@ -44,8 +47,17 @@ const telegramGetFileSchema = z.object({
   }),
 });
 
-type TelegramMessage = z.infer<typeof telegramMessageSchema>;
+export type TelegramMessage = z.infer<typeof telegramMessageSchema>;
 type TelegramUpdate = z.infer<typeof telegramUpdateSchema>;
+
+export type TelegramCommand =
+  | "start"
+  | "help"
+  | "status"
+  | "recent"
+  | "vat"
+  | "bank"
+  | "chatid";
 
 export function isAllowedTelegramRequest(request: Request, expectedSecret: string): boolean {
   const secret = request.headers.get("x-telegram-bot-api-secret-token");
@@ -55,6 +67,32 @@ export function isAllowedTelegramRequest(request: Request, expectedSecret: strin
 export function parseTelegramUpdate(payload: unknown): TelegramUpdate | null {
   const result = telegramUpdateSchema.safeParse(payload);
   return result.success ? result.data : null;
+}
+
+export function parseTelegramCommand(text?: string): TelegramCommand | null {
+  if (!text) {
+    return null;
+  }
+
+  const normalized = text.trim().split(/\s+/)[0]?.toLowerCase() ?? "";
+  switch (normalized) {
+    case "/start":
+      return "start";
+    case "/help":
+      return "help";
+    case "/status":
+      return "status";
+    case "/recent":
+      return "recent";
+    case "/vat":
+      return "vat";
+    case "/bank":
+      return "bank";
+    case "/chatid":
+      return "chatid";
+    default:
+      return null;
+  }
 }
 
 export function extractMessageFileCandidate(message: TelegramMessage) {
@@ -111,6 +149,32 @@ export async function fetchTelegramFileBuffer(filePath: string, botToken: string
   }
   const arrayBuffer = await response.arrayBuffer();
   return Buffer.from(arrayBuffer);
+}
+
+export async function sendTelegramMessage(
+  botToken: string,
+  chatId: string | number,
+  text: string,
+  replyToMessageId?: number,
+) {
+  const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text,
+      reply_to_message_id: replyToMessageId,
+      allow_sending_without_reply: true,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Telegram sendMessage failed with status ${response.status}`);
+  }
+
+  return response.json();
 }
 
 function extensionFromFilename(filename?: string) {
